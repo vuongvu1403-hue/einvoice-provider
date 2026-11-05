@@ -1,0 +1,10 @@
+{
+  "billingRef": "9000000001",
+  "sellerTaxCode": "0101234567",
+  "buyerName": "Cong ty Xay dung An Phat",
+  "buyerTaxCode": "0312345678",
+  "currency": "VND",
+  "items": [
+    { "name": "Xi mang PCB40 bao 50kg", "quantity": 100, "unitPrice": 95000, "taxRate": 10 }
+  ]
+}
