@@ -58,5 +58,13 @@ app.post("/api/invoices", (req, res) => {
   res.status(201).json(record);
 });
 
+app.get("/api/invoices/:billingRef", (req, res) => {
+  const record = invoices.get(req.params.billingRef);
+  if (!record) {
+    return res.status(404).json({ status: "NOT_FOUND", billingRef: req.params.billingRef });
+  }
+  res.json(record);
+});
+
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Provider running on port ${port}`));
