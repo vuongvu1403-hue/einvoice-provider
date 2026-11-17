@@ -1,6 +1,7 @@
 const express = require("express");
 const { z } = require("zod");
 const crypto = require("node:crypto");
+const { calcInvoice } = require("./calc");
 
 const app = express();
 app.use(express.json());
@@ -32,17 +33,14 @@ app.get("/health", (req, res) => res.json({ ok: true }));
 app.post("/api/invoices", (req, res) => {
   const parsed = InvoiceSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res
-      .status(400)
-      .json({ status: "REJECTED", errors: parsed.error.issues });
+    return res.status(400).json({ status: "REJECTED", errors: parsed.error.issues });
   }
   const data = parsed.data;
 
   const existing = invoices.get(data.billingRef);
-  if (existing) {
-    return res.json(existing);
-  }
+  if (existing) return res.json(existing);
 
+  const totals = calcInvoice(data.items);
   const record = {
     billingRef: data.billingRef,
     invoiceNo: String(invoices.size + 1).padStart(7, "0"),
@@ -50,6 +48,11 @@ app.post("/api/invoices", (req, res) => {
     taxAuthCode: crypto.randomBytes(17).toString("hex").toUpperCase(),
     status: "ISSUED",
     issuedAt: new Date().toISOString(),
+    currency: data.currency,
+    subtotal: totals.subtotal,
+    taxTotal: totals.taxTotal,
+    grandTotal: totals.grandTotal,
+    lines: totals.lines,
   };
   invoices.set(data.billingRef, record);
   res.status(201).json(record);
